@@ -4,15 +4,23 @@
   imports = [ ./hardware-configuration.nix ];
 
   # Загрузчик
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.grub.enable = true;
+  boot.loader.grub.device = "nodev"; # для UEFI
+  boot.loader.grub.efiSupport = true;
+  boot.loader.grub.efiInstallAsRemovable = true; # полезно при проблемах с NVRAM
+
+
+    # Plymouth (заставка)
+  boot.plymouth.enable = true;
+  boot.plymouth.theme = "breeze";   # или "bgrt", "spinner", "fade-in"
+  boot.kernelParams = [ "quiet" "splash" ];
 
   # Сеть
-  networking.hostName = "nixos";
+  networking.hostName = "user-nixos";
   networking.networkmanager.enable = true;
 
   # Часовой пояс
-  time.timeZone = "Europe/Kiev";
+  time.timeZone = "Europe/Vienna";
 
   # Локализация (русский язык)
   i18n.defaultLocale = "ru_RU.UTF-8";
@@ -36,7 +44,7 @@
 
   # KDE Plasma 6
   services.xserver.enable = true;
-  services.xserver.desktopManager.plasma6.enable = true;
+  services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = true;
   services.xserver.xkb.layout = "us,ru";
   services.xserver.xkb.options = "grp:alt_shift_toggle";
@@ -56,8 +64,12 @@
   # Разрешить unfree пакеты (нужно для некоторых программ)
   nixpkgs.config.allowUnfree = true;
 
+  services.flatpak.enable = true;
+  programs.fish.enable = true;
+
   # Пользователь (ЗАМЕНИ p2411kh на своё имя)
   users.users.p2411kh = {
+    shell = pkgs.fish;
     isNormalUser = true;
     extraGroups = [ "wheel" "networkmanager" ];
     packages = with pkgs; [
@@ -78,13 +90,41 @@
     }
   ];
 
+
+  hardware.opengl = {
+  enable = true;
+  driSupport32Bit = true;
+};
+
+
   # Системные пакеты
   environment.systemPackages = with pkgs; [
     nano
     git
     htop
     wget
+    fish
+    kitty
+    firefox
+    vim
+    fastfetch
+    cava
+    steam
+    steam-run
+    flatpak
+    discord
+    telegram-desktop
+    pywal
+    lsd
+    bat
+    zoxide
+    lazygit
+    neovim
+    tldr
   ];
+
+
+
 
   # Flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
